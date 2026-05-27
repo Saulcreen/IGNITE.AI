@@ -952,10 +952,10 @@ body::after {
     <div class="input-area">
       <div class="attach-strip" id="attachStrip"></div>
       <div class="input-row">
-        <textarea id="chatInput" rows="1" placeholder="Escribe un mensaje..."></textarea>
-        <button class="ia-btn" onclick="document.getElementById('fileInput').click()" title="Adjuntar imagen">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        <button class="ia-btn" onclick="document.getElementById('fileInput').click()" title="Adjuntar archivo">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
         </button>
+        <textarea id="chatInput" rows="1" placeholder="Escribe un mensaje..."></textarea>
         <button class="send-btn" id="sendBtn" onclick="sendMsg()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
         </button>
@@ -1424,7 +1424,7 @@ function appendMsgEl(msg, scroll = true) {
 
   // Generated image
   if (msg.imageUrl) {
-    contentHtml += `<img class="gen-img" src="${msg.imageUrl}" onclick="openImg('${msg.imageUrl}')">
+    contentHtml += `<img class="gen-img" src="${msg.imageUrl}" onclick="openImg('${msg.imageUrl}')" onerror="this.style.opacity='0.2';this.title='Error cargando imagen'">
       <div class="gen-caption">🖼 ${escHtml(msg.imagePrompt || '')}</div>`;
   }
 
@@ -1841,9 +1841,16 @@ async function handleImageGen(prompt) {
       if (!d.error) imageUrl = d.data?.[0]?.url;
     }
 
-    // Fallback: Pollinations (free, no key)
+    // Fallback: Pollinations — fetch como blob para evitar broken img
     if (!imageUrl) {
-      imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=512&height=512&nologo=true`;
+      const polUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=512&height=512&nologo=true&seed=${Date.now()}`;
+      try {
+        const imgRes = await fetch(polUrl);
+        if (imgRes.ok) {
+          const blob = await imgRes.blob();
+          imageUrl = await new Promise(res => { const r = new FileReader(); r.onload = e => res(e.target.result); r.readAsDataURL(blob); });
+        } else { imageUrl = polUrl; }
+      } catch(e) { imageUrl = polUrl; }
     }
 
     hideTyping();
