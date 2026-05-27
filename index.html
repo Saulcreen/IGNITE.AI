@@ -887,15 +887,9 @@ body::after {
     <div class="model-wrap">
       <div class="model-label">Modelo activo</div>
       <select class="model-sel" id="modelSelect" onchange="changeModel()">
-        <optgroup label="🔵 Google Gemini">
-
-        </optgroup>
-        <optgroup label="🟢 OpenAI">
-
-        </optgroup>
-        <optgroup label="🟠 Anthropic">
-
-        </optgroup>
+        
+        
+        
         <optgroup label="⚡ Groq (Free)">
           <option value="groq|meta-llama/llama-4-scout-17b-16e-instruct" selected>Llama 4 Scout 👁 (visión)</option>
           <option value="groq|meta-llama/llama-4-maverick-17b-128e-instruct">Llama 4 Maverick 👁 (visión)</option>
@@ -911,7 +905,7 @@ body::after {
     </div>
     <div class="prov-indicator" id="provIndicator">
       <span class="prov-dot"></span>
-      <span id="provLabel">gemini</span>
+      <span id="provLabel">groq</span>
     </div>
 
     <div class="chat-list-area" id="chatList"></div>
@@ -991,48 +985,9 @@ body::after {
         <strong>ℹ️ Seguridad:</strong> Las keys se guardan solo en tu navegador (localStorage). Nunca salen de tu dispositivo. Los inputs son <strong>type="password"</strong> — el navegador gestiona el ocultamiento de forma nativa.
       </div>
       <div class="prov-grid">
-        <div class="prov-card">
-          <div class="prov-card-head">
-            <div class="prov-icon">🔵</div>
-            <div>
-              <div class="prov-name">Google Gemini <span class="key-badge no" id="badge-gemini">Sin key</span></div>
-              <div class="prov-desc">gemini-2.0-flash · visión · OCR · Gratis en AI Studio</div>
-            </div>
-          </div>
-          <div class="prov-key-row">
-            <input type="password" id="key-gemini" placeholder="AIzaSy..." autocomplete="off">
-            <button class="key-toggle" onclick="toggleKey('key-gemini')">👁</button>
-            <a href="https://aistudio.google.com/app/apikey" target="_blank">→ Gratis</a>
-          </div>
-        </div>
-        <div class="prov-card">
-          <div class="prov-card-head">
-            <div class="prov-icon">🟢</div>
-            <div>
-              <div class="prov-name">OpenAI <span class="key-badge no" id="badge-openai">Sin key</span></div>
-              <div class="prov-desc">GPT-4o · visión · DALL·E para imágenes</div>
-            </div>
-          </div>
-          <div class="prov-key-row">
-            <input type="password" id="key-openai" placeholder="sk-..." autocomplete="off">
-            <button class="key-toggle" onclick="toggleKey('key-openai')">👁</button>
-            <a href="https://platform.openai.com/api-keys" target="_blank">→ Obtener</a>
-          </div>
-        </div>
-        <div class="prov-card">
-          <div class="prov-card-head">
-            <div class="prov-icon">🟠</div>
-            <div>
-              <div class="prov-name">Anthropic (Claude) <span class="key-badge no" id="badge-anthropic">Sin key</span></div>
-              <div class="prov-desc">Claude 3.5 Sonnet/Haiku · visión</div>
-            </div>
-          </div>
-          <div class="prov-key-row">
-            <input type="password" id="key-anthropic" placeholder="sk-ant-..." autocomplete="off">
-            <button class="key-toggle" onclick="toggleKey('key-anthropic')">👁</button>
-            <a href="https://console.anthropic.com/settings/keys" target="_blank">→ Obtener</a>
-          </div>
-        </div>
+
+
+
         <div class="prov-card">
           <div class="prov-card-head">
             <div class="prov-icon">⚡</div>
