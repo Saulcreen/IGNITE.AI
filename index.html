@@ -508,6 +508,55 @@ body::after {
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 56px;
 }
 
+
+/* ── EDIT MSG ── */
+.msg-edit-btn {
+  opacity: 0; transition: opacity .15s;
+  background: none; border: 1px solid var(--bord); border-radius: 4px;
+  color: var(--txt-d); font-size: 11px; padding: 2px 7px; cursor: pointer;
+  margin-top: 4px; display: inline-block;
+}
+.message.user:hover .msg-edit-btn { opacity: 1; }
+.msg-edit-area {
+  width: 100%; background: var(--surf2); border: 1px solid var(--bord2);
+  border-radius: 8px; color: var(--txt); font-family: var(--fb); font-size: .9rem;
+  padding: 8px 10px; resize: none; margin-top: 6px; min-height: 60px;
+}
+.msg-edit-actions { display: flex; gap: 6px; margin-top: 6px; }
+.msg-edit-save {
+  background: var(--red); color: #fff; border: none; border-radius: 5px;
+  padding: 4px 14px; font-size: 12px; cursor: pointer; font-family: var(--fb);
+}
+.msg-edit-save:hover { background: var(--red-l); }
+.msg-edit-cancel {
+  background: none; border: 1px solid var(--bord); border-radius: 5px;
+  color: var(--txt-d); padding: 4px 12px; font-size: 12px; cursor: pointer;
+}
+
+/* ── @imagen PICKER ── */
+.img-picker-popup {
+  position: absolute; bottom: 100%; left: 0; right: 0; margin-bottom: 6px;
+  background: var(--surf); border: 1px solid var(--bord2); border-radius: 10px;
+  padding: 10px; z-index: 100; display: none;
+}
+.img-picker-popup.active { display: block; }
+.img-picker-title { font-size: 11px; color: var(--txt-d); margin-bottom: 8px; font-family: var(--fm); }
+.img-picker-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+.img-picker-item {
+  width: 60px; height: 60px; border-radius: 6px; overflow: hidden;
+  border: 2px solid transparent; cursor: pointer; transition: border-color .15s;
+  position: relative;
+}
+.img-picker-item:hover { border-color: var(--yellow); }
+.img-picker-item img { width: 100%; height: 100%; object-fit: cover; }
+.img-picker-item .img-num {
+  position: absolute; bottom: 2px; right: 3px;
+  background: rgba(0,0,0,.7); color: var(--yellow); font-size: 10px;
+  font-family: var(--fm); border-radius: 3px; padding: 0 3px;
+}
+.img-picker-empty { font-size: 12px; color: var(--txt-m); padding: 4px; }
+.input-area { position: relative; }
+
 /* Generated image */
 .gen-img {
   width: 220px; max-width: 100%; margin-top: 8px;
@@ -961,7 +1010,11 @@ body::after {
         </button>
       </div>
       <input type="file" id="fileInput" accept="*/*" multiple onchange="handleFiles(event)">
-      <div class="input-hint" id="inputHint">ENTER para enviar &nbsp;·&nbsp; SHIFT+ENTER para nueva línea &nbsp;·&nbsp; @imagen para generar imágenes</div>
+      <div class="img-picker-popup" id="imgPickerPopup">
+        <div class="img-picker-title">📎 Selecciona una imagen adjunta para referenciar:</div>
+        <div class="img-picker-grid" id="imgPickerGrid"></div>
+      </div>
+      <div class="input-hint" id="inputHint">ENTER para enviar &nbsp;·&nbsp; SHIFT+ENTER para nueva línea &nbsp;·&nbsp; @imagen para referenciar imagen adjunta</div>
     </div>
   </div>
 
@@ -1431,7 +1484,7 @@ function appendMsgEl(msg, scroll = true) {
   // Text content
   if (msg.content) {
     contentHtml += isUser
-      ? `<div class="msg-bubble">${escHtml(msg.content).replace(/\n/g,'<br>')}</div>`
+      ? `<div class="msg-bubble">${escHtml(msg.content).replace(/\n/g,'<br>')}</div><button class="msg-edit-btn" onclick="startEditMsg(this)">✏ editar</button>`
       : `<div class="msg-bubble">${renderMarkdown(msg.content)}</div>`;
   }
 
@@ -2083,6 +2136,7 @@ document.getElementById('chatInput').addEventListener('keydown', e => {
 });
 document.getElementById('chatInput').addEventListener('input', function() {
   autoResize(this);
+  checkImgPicker();
 });
 
 function autoResize(el) {
@@ -2191,7 +2245,131 @@ function copyCode(btn, id) {
   });
 }
 
-// ── CTRL+V PASTE DE IMÁGENES ──
+// ── EDIT MESSAGE ──
+function startEditMsg(btn) {
+  const msgContent = btn.closest('.msg-content');
+  const bubble = msgContent.querySelector('.msg-bubble');
+  const currentText = bubble.innerText;
+
+  // Replace bubble with textarea
+  bubble.style.display = 'none';
+  btn.style.display = 'none';
+
+  const ta = document.createElement('textarea');
+  ta.className = 'msg-edit-area';
+  ta.value = currentText;
+  ta.rows = Math.max(2, currentText.split('\n').length);
+
+  const actions = document.createElement('div');
+  actions.className = 'msg-edit-actions';
+  actions.innerHTML = '<button class="msg-edit-save">Guardar y reenviar</button><button class="msg-edit-cancel">Cancelar</button>';
+
+  msgContent.appendChild(ta);
+  msgContent.appendChild(actions);
+  ta.focus();
+
+  actions.querySelector('.msg-edit-cancel').onclick = () => {
+    ta.remove(); actions.remove();
+    bubble.style.display = '';
+    btn.style.display = '';
+  };
+
+  actions.querySelector('.msg-edit-save').onclick = async () => {
+    const newText = ta.value.trim();
+    if (!newText) return;
+
+    // Find message index in chat
+    const chat = getActiveChat();
+    if (!chat) return;
+    const msgDiv = btn.closest('.message');
+    const allMsgs = document.querySelectorAll('.message');
+    const idx = Array.from(allMsgs).indexOf(msgDiv);
+
+    // Update message and truncate history from that point
+    chat.messages[idx].content = newText;
+    chat.messages = chat.messages.slice(0, idx + 1);
+    saveState();
+
+    // Re-render all messages
+    const msgsEl = document.getElementById('msgs');
+    msgsEl.innerHTML = '';
+    chat.messages.forEach(m => appendMsgEl(m, false));
+
+    // Re-send
+    setLoading(true);
+    showTyping();
+    try {
+      const result = await callAI(chat.messages, currentProvider, currentModel);
+      hideTyping();
+      const aiMsg = {
+        role: 'assistant', content: result.text,
+        usedProvider: result.provider || currentProvider,
+        usedModel: result.model || currentModel,
+        timestamp: Date.now()
+      };
+      chat.messages.push(aiMsg);
+      appendMsgEl(aiMsg);
+      saveState();
+    } catch(err) {
+      hideTyping();
+      const errMsg = { role: 'assistant', content: err.message || 'Error', error: true, timestamp: Date.now() };
+      chat.messages.push(errMsg);
+      appendMsgEl(errMsg);
+      saveState();
+    } finally {
+      setLoading(false);
+    }
+  };
+}
+
+// ── @imagen PICKER ──
+let imgPickerCallback = null;
+
+function checkImgPicker(e) {
+  const input = document.getElementById('chatInput');
+  const val = input.value;
+  const cursor = input.selectionStart;
+  // Detectar si acaba de escribir @imagen
+  const before = val.slice(0, cursor);
+  const match = before.match(/@imagen\s*$/i);
+  const popup = document.getElementById('imgPickerPopup');
+
+  if (match && pendingAttachments.some(a => a.type === 'image')) {
+    // Mostrar picker con imágenes adjuntas
+    const grid = document.getElementById('imgPickerGrid');
+    grid.innerHTML = '';
+    const imgs = pendingAttachments.filter(a => a.type === 'image');
+    if (imgs.length === 0) {
+      grid.innerHTML = '<div class="img-picker-empty">No hay imágenes adjuntas aún</div>';
+    } else {
+      imgs.forEach((img, i) => {
+        const item = document.createElement('div');
+        item.className = 'img-picker-item';
+        item.innerHTML = `<img src="${img.dataUrl}"><span class="img-num">${i+1}</span>`;
+        item.onclick = () => {
+          // Insertar referencia en el input
+          const ref = `@imagen${i+1}`;
+          const newVal = val.slice(0, cursor).replace(/@imagen\s*$/i, ref + ' ') + val.slice(cursor);
+          input.value = newVal;
+          input.focus();
+          popup.classList.remove('active');
+        };
+        grid.appendChild(item);
+      });
+    }
+    popup.classList.add('active');
+  } else {
+    popup.classList.remove('active');
+  }
+}
+
+// Cerrar picker al hacer click fuera
+document.addEventListener('click', e => {
+  const popup = document.getElementById('imgPickerPopup');
+  if (!e.target.closest('.input-area')) popup.classList.remove('active');
+});
+
+
 document.addEventListener('paste', function(e) {
   const items = (e.clipboardData || e.originalEvent?.clipboardData)?.items;
   if (!items) return;
