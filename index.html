@@ -497,6 +497,17 @@ body::after {
   font-family: var(--fm);
 }
 
+
+.file-thumb-icon {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  width: 60px; height: 60px; background: var(--surf2); border-radius: 6px;
+  font-size: 22px; gap: 2px; padding: 4px;
+}
+.file-thumb-icon span {
+  font-size: 9px; color: var(--txt-d); text-align: center;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 56px;
+}
+
 /* Generated image */
 .gen-img {
   width: 220px; max-width: 100%; margin-top: 8px;
@@ -877,23 +888,16 @@ body::after {
       <div class="model-label">Modelo activo</div>
       <select class="model-sel" id="modelSelect" onchange="changeModel()">
         <optgroup label="🔵 Google Gemini">
-          <option value="gemini|gemini-2.0-flash-lite">Gemini 2.0 Flash Lite ⚡</option>
-          <option value="gemini|gemini-2.0-flash">Gemini 2.0 Flash</option>
-          <option value="gemini|gemini-1.5-flash" selected>Gemini 1.5 Flash ✓</option>
-          <option value="gemini|gemini-1.5-pro">Gemini 1.5 Pro ★</option>
+
         </optgroup>
         <optgroup label="🟢 OpenAI">
-          <option value="openai|gpt-4o-mini">GPT-4o Mini ⚡</option>
-          <option value="openai|gpt-4o">GPT-4o ★</option>
-          <option value="openai|o4-mini">o4-mini</option>
+
         </optgroup>
         <optgroup label="🟠 Anthropic">
-          <option value="anthropic|claude-3-5-haiku-20241022">Claude 3.5 Haiku ⚡</option>
-          <option value="anthropic|claude-3-5-sonnet-20241022">Claude 3.5 Sonnet ★</option>
-          <option value="anthropic|claude-3-opus-20240229">Claude 3 Opus</option>
+
         </optgroup>
         <optgroup label="⚡ Groq (Free)">
-          <option value="groq|meta-llama/llama-4-scout-17b-16e-instruct">Llama 4 Scout 👁 (visión)</option>
+          <option value="groq|meta-llama/llama-4-scout-17b-16e-instruct" selected>Llama 4 Scout 👁 (visión)</option>
           <option value="groq|meta-llama/llama-4-maverick-17b-128e-instruct">Llama 4 Maverick 👁 (visión)</option>
           <option value="groq|llama-3.1-8b-instant">Llama 3.1 8B ⚡</option>
           <option value="groq|llama-3.3-70b-versatile">Llama 3.3 70B ★</option>
@@ -962,7 +966,7 @@ body::after {
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
         </button>
       </div>
-      <input type="file" id="fileInput" accept="image/*" multiple onchange="handleFiles(event)">
+      <input type="file" id="fileInput" accept="*/*" multiple onchange="handleFiles(event)">
       <div class="input-hint" id="inputHint">ENTER para enviar &nbsp;·&nbsp; SHIFT+ENTER para nueva línea &nbsp;·&nbsp; @imagen para generar imágenes</div>
     </div>
   </div>
@@ -1118,9 +1122,9 @@ body::after {
 // ══════════════════════════════════════════
 let chats = [];
 let activeChatId = null;
-let currentProvider = 'gemini';
-let currentModel = 'gemini-1.5-flash';
-let apiKeys = { gemini:'', openai:'', anthropic:'', groq:'', mistral:'' };
+let currentProvider = 'groq';
+let currentModel = 'meta-llama/llama-4-scout-17b-16e-instruct';
+let apiKeys = { groq:'', mistral:'' };
 let customProviders = [];
 let sysPrompt = '';
 let assistantName = 'Ignite AI';
@@ -1150,7 +1154,6 @@ const MODEL_NAMES = {
 };
 
 const PROVIDER_COLORS = {
-  gemini: '#4285F4', openai: '#10A37F', anthropic: '#FF8C00',
   groq: '#F5A623', mistral: '#9B4DE0'
 };
 
@@ -1173,8 +1176,8 @@ function loadState() {
       assistantName = s.assistantName || 'Ignite AI';
       temperature = s.temperature ?? 0.8;
       chats = s.chats || [];
-      currentProvider = s.currentProvider || 'gemini';
-      currentModel = s.currentModel || 'gemini-1.5-flash';
+      currentProvider = s.currentProvider || 'groq';
+      currentModel = s.currentModel || 'meta-llama/llama-4-scout-17b-16e-instruct';
       userProfile = s.userProfile || null;
     }
   } catch(e) { console.warn('State load error', e); }
@@ -1531,9 +1534,6 @@ async function sendMsg() {
 
   const hasKey = currentProvider === 'groq'
     ? apiKeys.groq
-    : currentProvider === 'gemini' ? apiKeys.gemini
-    : currentProvider === 'openai' ? apiKeys.openai
-    : currentProvider === 'anthropic' ? apiKeys.anthropic
     : currentProvider === 'mistral' ? apiKeys.mistral
     : true; // custom
 
@@ -1616,9 +1616,6 @@ function setLoading(v) {
 async function callAI(messages, provider, model) {
   const sys = sysPrompt.trim();
 
-  if (provider === 'gemini') return callGemini(messages, model, sys);
-  if (provider === 'openai') return callOpenAI(messages, model, sys);
-  if (provider === 'anthropic') return callAnthropic(messages, model, sys);
   if (provider === 'groq') return callGroq(messages, model, sys);
   if (provider === 'mistral') return callMistral(messages, model, sys);
   if (provider.startsWith('custom_')) {
@@ -1795,6 +1792,14 @@ async function callGroq(messages, model, sys) {
       const txt = (m.content || '') + `
 [Nota: adjuntaste ${names} pero el modelo actual no soporta visión. Cambia a Llama 4 Scout o Maverick para analizar imágenes]`;
       msgs.push({ role: m.role, content: txt });
+    } else if (m.attachments && m.attachments.some(a => a.type === 'file' && a.content)) {
+      // Archivos de texto: incluir contenido como contexto
+      const fileCtx = m.attachments
+        .filter(a => a.type === 'file' && a.content)
+        .map(a => `[Archivo: ${a.name}]\n\`\`\`\n${a.content.slice(0, 8000)}\n\`\`\``)
+        .join('\n\n');
+      const combined = (m.content ? m.content + '\n\n' : '') + fileCtx;
+      msgs.push({ role: m.role, content: combined });
     } else {
       msgs.push({ role: m.role, content: m.content || '' });
     }
@@ -1915,18 +1920,31 @@ async function handleImageGen(prompt) {
 // FILE ATTACHMENTS
 // ══════════════════════════════════════════
 function handleFiles(e) {
-  const files = Array.from(e.target.files);
+  const files = Array.from(e.target.files || e);
   files.forEach(f => {
-    if (!f.type.startsWith('image/')) { toast('Solo se admiten imágenes'); return; }
     const reader = new FileReader();
-    reader.onload = ev => {
-      const att = { type: 'image', name: f.name, dataUrl: ev.target.result, mimeType: f.type };
-      pendingAttachments.push(att);
-      renderAttachStrip();
-    };
-    reader.readAsDataURL(f);
+    if (f.type.startsWith('image/')) {
+      reader.onload = ev => {
+        pendingAttachments.push({ type: 'image', name: f.name, dataUrl: ev.target.result, mimeType: f.type });
+        renderAttachStrip();
+      };
+      reader.readAsDataURL(f);
+    } else if (f.type === 'application/pdf' || f.type.startsWith('text/') || f.name.endsWith('.txt') || f.name.endsWith('.md') || f.name.endsWith('.csv') || f.name.endsWith('.json') || f.name.endsWith('.js') || f.name.endsWith('.py') || f.name.endsWith('.html') || f.name.endsWith('.css')) {
+      reader.onload = ev => {
+        pendingAttachments.push({ type: 'file', name: f.name, content: ev.target.result, mimeType: f.type });
+        renderAttachStrip();
+      };
+      reader.readAsText(f);
+    } else {
+      // Otros archivos binarios como base64
+      reader.onload = ev => {
+        pendingAttachments.push({ type: 'file', name: f.name, dataUrl: ev.target.result, mimeType: f.type });
+        renderAttachStrip();
+      };
+      reader.readAsDataURL(f);
+    }
   });
-  e.target.value = '';
+  if (e.target && e.target.value !== undefined) e.target.value = '';
 }
 
 function renderAttachStrip() {
@@ -1935,7 +1953,12 @@ function renderAttachStrip() {
   pendingAttachments.forEach((a, i) => {
     const div = document.createElement('div');
     div.className = 'att-thumb';
-    div.innerHTML = `<img src="${a.dataUrl}" title="${escHtml(a.name)}"><button class="att-rm" onclick="removeAtt(${i})">✕</button>`;
+    if (a.type === 'image') {
+      div.innerHTML = `<img src="${a.dataUrl}" title="${escHtml(a.name)}"><button class="att-rm" onclick="removeAtt(${i})">✕</button>`;
+    } else {
+      const icon = a.name.endsWith('.pdf') ? '📄' : a.name.endsWith('.py') ? '🐍' : a.name.endsWith('.js') ? '📜' : '📁';
+      div.innerHTML = `<div class="file-thumb-icon">${icon}<span>${escHtml(a.name)}</span></div><button class="att-rm" onclick="removeAtt(${i})">✕</button>`;
+    }
     strip.appendChild(div);
   });
 }
@@ -2205,6 +2228,26 @@ function copyCode(btn, id) {
     setTimeout(() => { btn.textContent = '📋 Copiar'; btn.classList.remove('copied'); }, 2000);
   });
 }
+
+// ── CTRL+V PASTE DE IMÁGENES ──
+document.addEventListener('paste', function(e) {
+  const items = (e.clipboardData || e.originalEvent?.clipboardData)?.items;
+  if (!items) return;
+  for (const item of items) {
+    if (item.type.startsWith('image/')) {
+      e.preventDefault();
+      const file = item.getAsFile();
+      if (!file) continue;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        pendingAttachments.push({ type: 'image', name: 'pegado-' + Date.now() + '.png', dataUrl: ev.target.result, mimeType: item.type });
+        renderAttachStrip();
+        toast('📋 Imagen pegada');
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+});
 </script>
 </body>
 </html>
