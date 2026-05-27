@@ -9,23 +9,23 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <style>
 :root {
-  --red: #C8003A;
-  --red-d: #8B0028;
-  --red-l: #E8205A;
-  --yellow: #FFD000;
-  --yellow-d: #D4A800;
-  --yellow-l: #FFE566;
-  --amber: #FF9500;
-  --bg: #1A0008;
-  --bg2: #220010;
-  --bg3: #2A0016;
-  --surf: #35001D;
-  --surf2: #400025;
-  --bord: rgba(200,0,58,.30);
-  --bord2: rgba(255,208,0,.18);
-  --txt: #FFF0D8;
-  --txt-d: #C08878;
-  --txt-m: #7A4050;
+  --red: #FF6B00;
+  --red-d: #C45000;
+  --red-l: #FF8C35;
+  --yellow: #9B5DE5;
+  --yellow-d: #7B3DBF;
+  --yellow-l: #C084FC;
+  --amber: #FF6B00;
+  --bg: #0A0010;
+  --bg2: #0F0018;
+  --bg3: #150020;
+  --surf: #1E0030;
+  --surf2: #280040;
+  --bord: rgba(255,107,0,.28);
+  --bord2: rgba(155,93,229,.22);
+  --txt: #F5EEFF;
+  --txt-d: #A07AC0;
+  --txt-m: #4A2870;
   --green: #22c55e;
   --fh: 'Bebas Neue', sans-serif;
   --fm: 'IBM Plex Mono', monospace;
@@ -36,8 +36,8 @@
 body {
   font-family: var(--fb);
   background: var(--bg);
-  background-image: radial-gradient(ellipse 80% 60% at 20% 80%, rgba(200,0,58,.12) 0%, transparent 60%),
-                    radial-gradient(ellipse 60% 40% at 80% 20%, rgba(255,208,0,.05) 0%, transparent 50%);
+  background-image: radial-gradient(ellipse 80% 60% at 20% 80%, rgba(255,107,0,.12) 0%, transparent 60%),
+                    radial-gradient(ellipse 60% 40% at 80% 20%, rgba(155,93,229,.06) 0%, transparent 50%);
   color: var(--txt);
   height: 100vh;
   overflow: hidden;
@@ -78,7 +78,7 @@ body::after {
 #loginScreen::before {
   content: '';
   position: absolute; inset: 0;
-  background: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(200,0,58,.18) 0%, transparent 70%);
+  background: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(255,107,0,.14) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -89,7 +89,7 @@ body::after {
   border-top: 3px solid var(--red);
   padding: 44px 40px 36px;
   position: relative;
-  box-shadow: 0 0 60px rgba(200,0,58,.25), 0 24px 80px rgba(0,0,0,.6);
+  box-shadow: 0 0 60px rgba(255,107,0,.20), 0 24px 80px rgba(0,0,0,.7);
 }
 
 .login-box::before {
@@ -407,8 +407,8 @@ body::after {
   font-family: var(--fm);
 }
 .no-key-warn {
-  background: rgba(200,0,58,.10);
-  border: 1px solid rgba(200,0,58,.35);
+  background: rgba(255,107,0,.10);
+  border: 1px solid rgba(255,107,0,.35);
   padding: 10px 14px;
   font-size: .8rem; color: #FF6677;
   display: flex; align-items: center; gap: 8px;
@@ -416,7 +416,7 @@ body::after {
   cursor: pointer; transition: background .15s;
   font-family: var(--fm);
 }
-.no-key-warn:hover { background: rgba(200,0,58,.18); }
+.no-key-warn:hover { background: rgba(255,107,0,.18); }
 .chips {
   display: flex; flex-wrap: wrap; gap: 7px; justify-content: center;
   max-width: 560px;
@@ -429,7 +429,7 @@ body::after {
   cursor: pointer; transition: all .15s;
   font-family: var(--fm);
 }
-.chip:hover { border-color: var(--yellow); color: var(--yellow); background: rgba(255,208,0,.05); }
+.chip:hover { border-color: var(--yellow); color: var(--yellow); background: rgba(155,93,229,.05); }
 
 /* Message bubbles */
 .message {
@@ -478,7 +478,7 @@ body::after {
 }
 .message.user .msg-bubble {
   background: var(--red);
-  border: 1px solid rgba(200,0,58,.6);
+  border: 1px solid rgba(255,107,0,.6);
   color: rgba(255,255,255,.95);
 }
 
@@ -492,7 +492,7 @@ body::after {
 .att-img-thumb:hover { opacity: .8; }
 .att-doc-pill {
   display: inline-flex; align-items: center; gap: 6px;
-  background: rgba(255,208,0,.07); border: 1px solid var(--bord2);
+  background: rgba(155,93,229,.07); border: 1px solid var(--bord2);
   padding: 3px 8px; font-size: .73rem; color: var(--txt-d); margin-bottom: 5px;
   font-family: var(--fm);
 }
@@ -600,7 +600,7 @@ body::after {
 /* Error message */
 .err-msg {
   padding: 10px 14px;
-  background: rgba(200,0,58,.10); border: 1px solid rgba(200,0,58,.35);
+  background: rgba(255,107,0,.10); border: 1px solid rgba(255,107,0,.35);
   border-left: 2px solid var(--red);
   font-size: .84rem; color: #FF6677;
   display: flex; align-items: flex-start; gap: 8px;
@@ -695,7 +695,7 @@ body::after {
   overflow-y: auto;
   padding: 28px;
   scrollbar-width: thin; scrollbar-color: var(--red-d) transparent;
-  box-shadow: 0 0 60px rgba(200,0,58,.2), 0 24px 80px rgba(0,0,0,.7);
+  box-shadow: 0 0 60px rgba(255,107,0,.18), 0 24px 80px rgba(0,0,0,.7);
 }
 
 .settings-title {
@@ -718,8 +718,8 @@ body::after {
 .stab-panel.active { display: block; }
 
 .info-box {
-  background: rgba(255,208,0,.05);
-  border: 1px solid rgba(255,208,0,.2);
+  background: rgba(155,93,229,.05);
+  border: 1px solid rgba(155,93,229,.2);
   padding: 9px 12px; font-size: .77rem; color: var(--txt-d);
   line-height: 1.6; margin-bottom: 14px; font-family: var(--fm);
 }
@@ -775,10 +775,10 @@ body::after {
 .prov-key-row a {
   font-family: var(--fm); font-size: .68rem;
   color: var(--red); text-decoration: none; white-space: nowrap;
-  padding: 6px 8px; border: 1px solid rgba(200,0,58,.4);
+  padding: 6px 8px; border: 1px solid rgba(255,107,0,.4);
   transition: all .12s; flex-shrink: 0;
 }
-.prov-key-row a:hover { background: rgba(200,0,58,.15); }
+.prov-key-row a:hover { background: rgba(255,107,0,.15); }
 
 /* Settings controls */
 .settings-field { margin-bottom: 14px; }
@@ -835,7 +835,7 @@ body::after {
   color: var(--red); font-family: var(--fm); font-size: .76rem;
   cursor: pointer; transition: all .12s;
 }
-.cp-add-btn:hover { background: rgba(200,0,58,.15); }
+.cp-add-btn:hover { background: rgba(255,107,0,.15); }
 
 /* ── IMAGE MODAL ── */
 .img-modal {
@@ -877,7 +877,7 @@ body::after {
 .msg-bubble strong { color: var(--yellow); font-weight: 600; }
 .msg-bubble em { color: var(--txt-d); }
 .msg-bubble code {
-  background: rgba(255,208,0,.08); border: 1px solid rgba(255,208,0,.15);
+  background: rgba(155,93,229,.08); border: 1px solid rgba(155,93,229,.15);
   padding: 1px 5px; font-family: var(--fm); font-size: .83em; color: var(--yellow);
 }
 .msg-bubble a { color: var(--red-l); text-decoration: underline; }
@@ -897,7 +897,20 @@ body::after {
 <div id="loginScreen">
   <div class="login-box">
     <div class="login-logo">
-      <div class="login-icon">🔥</div>
+      <div class="login-icon">
+        <svg width="26" height="26" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="20" cy="20" r="7" stroke="#0A0010" stroke-width="2" fill="#0A0010"/>
+          <circle cx="20" cy="20" r="3" fill="#FF6B00"/>
+          <line x1="20" y1="4" x2="20" y2="13" stroke="#FF6B00" stroke-width="2" stroke-linecap="round"/>
+          <line x1="20" y1="27" x2="20" y2="36" stroke="#FF6B00" stroke-width="2" stroke-linecap="round"/>
+          <line x1="4" y1="20" x2="13" y2="20" stroke="#FF6B00" stroke-width="2" stroke-linecap="round"/>
+          <line x1="27" y1="20" x2="36" y2="20" stroke="#FF6B00" stroke-width="2" stroke-linecap="round"/>
+          <line x1="8.69" y1="8.69" x2="15.27" y2="15.27" stroke="#9B5DE5" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="24.73" y1="24.73" x2="31.31" y2="31.31" stroke="#9B5DE5" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="31.31" y1="8.69" x2="24.73" y2="15.27" stroke="#9B5DE5" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="15.27" y1="24.73" x2="8.69" y2="31.31" stroke="#9B5DE5" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
       <div class="login-title">IGNITE<span>.</span>AI</div>
     </div>
     <div class="login-tagline">// Multi-provider AI chat &mdash; Gemini · GPT · Claude · Groq · Mistral</div>
@@ -924,7 +937,19 @@ body::after {
   <!-- SIDEBAR -->
   <div class="sidebar">
     <div class="sb-header">
-      <div class="sb-icon">🔥</div>
+      <div class="sb-icon">
+        <svg width="16" height="16" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="20" cy="20" r="3" fill="#FF6B00"/>
+          <line x1="20" y1="4" x2="20" y2="13" stroke="#FF6B00" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="20" y1="27" x2="20" y2="36" stroke="#FF6B00" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="4" y1="20" x2="13" y2="20" stroke="#FF6B00" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="27" y1="20" x2="36" y2="20" stroke="#FF6B00" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="8.69" y1="8.69" x2="15.27" y2="15.27" stroke="#9B5DE5" stroke-width="2" stroke-linecap="round"/>
+          <line x1="24.73" y1="24.73" x2="31.31" y2="31.31" stroke="#9B5DE5" stroke-width="2" stroke-linecap="round"/>
+          <line x1="31.31" y1="8.69" x2="24.73" y2="15.27" stroke="#9B5DE5" stroke-width="2" stroke-linecap="round"/>
+          <line x1="15.27" y1="24.73" x2="8.69" y2="31.31" stroke="#9B5DE5" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
       <div class="sb-title">IGNITE<span>.</span>AI</div>
     </div>
 
@@ -1109,7 +1134,7 @@ body::after {
         <label>Nombre para mostrar</label>
         <input type="text" id="displayNameInput" placeholder="Tu nombre">
       </div>
-      <button style="width:100%;padding:9px;background:none;border:1px solid rgba(232,0,29,.3);color:var(--red);font-family:var(--fm);font-size:.76rem;cursor:pointer;margin-top:6px;transition:all .12s;" onmouseover="this.style.background='rgba(232,0,29,.08)'" onmouseout="this.style.background='none'" onclick="logout()">CERRAR SESIÓN</button>
+      <button style="width:100%;padding:9px;background:none;border:1px solid rgba(255,107,0,.3);color:var(--red);font-family:var(--fm);font-size:.76rem;cursor:pointer;margin-top:6px;transition:all .12s;" onmouseover="this.style.background='rgba(255,107,0,.08)'" onmouseout="this.style.background='none'" onclick="logout()">CERRAR SESIÓN</button>
     </div>
 
     <button class="save-btn" onclick="saveSettings()">GUARDAR AJUSTES</button>
@@ -1162,7 +1187,7 @@ const MODEL_NAMES = {
 };
 
 const PROVIDER_COLORS = {
-  groq: '#F5A623', mistral: '#9B4DE0'
+  groq: '#FF6B00', mistral: '#9B5DE5'
 };
 
 // ══════════════════════════════════════════
@@ -1384,7 +1409,7 @@ function updateModelUI() {
   document.getElementById('provLabel').textContent = currentProvider;
 
   const dot = document.querySelector('.prov-dot');
-  const color = PROVIDER_COLORS[currentProvider] || '#E8001D';
+  const color = PROVIDER_COLORS[currentProvider] || '#FF6B00';
   if (dot) dot.style.background = color;
 }
 
@@ -1414,7 +1439,7 @@ function renderMessages(messages) {
     const hasKey = Object.values(apiKeys).some(k => k.trim());
     el.innerHTML = `
       <div class="welcome">
-        <div class="w-icon">🔥</div>
+        <div class="w-icon"><svg width="36" height="36" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="7" stroke="#0A0010" stroke-width="1.5" fill="#0A0010"/><circle cx="20" cy="20" r="3.5" fill="#FF6B00"/><line x1="20" y1="3" x2="20" y2="12" stroke="#FF6B00" stroke-width="2.2" stroke-linecap="round"/><line x1="20" y1="28" x2="20" y2="37" stroke="#FF6B00" stroke-width="2.2" stroke-linecap="round"/><line x1="3" y1="20" x2="12" y2="20" stroke="#FF6B00" stroke-width="2.2" stroke-linecap="round"/><line x1="28" y1="20" x2="37" y2="20" stroke="#FF6B00" stroke-width="2.2" stroke-linecap="round"/><line x1="7.93" y1="7.93" x2="14.51" y2="14.51" stroke="#9B5DE5" stroke-width="1.8" stroke-linecap="round"/><line x1="25.49" y1="25.49" x2="32.07" y2="32.07" stroke="#9B5DE5" stroke-width="1.8" stroke-linecap="round"/><line x1="32.07" y1="7.93" x2="25.49" y2="14.51" stroke="#9B5DE5" stroke-width="1.8" stroke-linecap="round"/><line x1="14.51" y1="25.49" x2="7.93" y2="32.07" stroke="#9B5DE5" stroke-width="1.8" stroke-linecap="round"/></svg></div>
         <h2>IGNITE<span>.</span>AI</h2>
         <p>Chat multi-IA con Gemini, GPT, Claude, Groq y Mistral. Selecciona un modelo y empieza.</p>
         ${!hasKey ? `<div class="no-key-warn" onclick="openSettings()">⚠ Sin API keys configuradas. Haz clic para configurarlas → Ajustes</div>` : ''}
@@ -1460,7 +1485,7 @@ function appendMsgEl(msg, scroll = true) {
 
   let avHtml = isUser
     ? (userProfile?.picture ? `<img src="${userProfile.picture}">` : (userProfile ? userProfile.name[0] : '?'))
-    : '🔥';
+    : `<svg width="16" height="16" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="3" fill="#FF6B00"/><line x1="20" y1="4" x2="20" y2="13" stroke="#FF6B00" stroke-width="2.5" stroke-linecap="round"/><line x1="20" y1="27" x2="20" y2="36" stroke="#FF6B00" stroke-width="2.5" stroke-linecap="round"/><line x1="4" y1="20" x2="13" y2="20" stroke="#FF6B00" stroke-width="2.5" stroke-linecap="round"/><line x1="27" y1="20" x2="36" y2="20" stroke="#FF6B00" stroke-width="2.5" stroke-linecap="round"/><line x1="8.69" y1="8.69" x2="15.27" y2="15.27" stroke="#9B5DE5" stroke-width="2" stroke-linecap="round"/><line x1="24.73" y1="24.73" x2="31.31" y2="31.31" stroke="#9B5DE5" stroke-width="2" stroke-linecap="round"/><line x1="31.31" y1="8.69" x2="24.73" y2="15.27" stroke="#9B5DE5" stroke-width="2" stroke-linecap="round"/><line x1="15.27" y1="24.73" x2="8.69" y2="31.31" stroke="#9B5DE5" stroke-width="2" stroke-linecap="round"/></svg>`;
 
   let contentHtml = '';
 
@@ -1490,7 +1515,7 @@ function appendMsgEl(msg, scroll = true) {
 
   // Tag
   const tag = msg.usedModel
-    ? `<span class="ai-tag" style="color:${PROVIDER_COLORS[msg.usedProvider]||'#E8001D'};border-color:${PROVIDER_COLORS[msg.usedProvider]||'#E8001D'}40">${MODEL_NAMES[msg.usedModel]||msg.usedModel}</span>`
+    ? `<span class="ai-tag" style="color:${PROVIDER_COLORS[msg.usedProvider]||'#FF6B00'};border-color:${PROVIDER_COLORS[msg.usedProvider]||'#FF6B00'}40">${MODEL_NAMES[msg.usedModel]||msg.usedModel}</span>`
     : '';
 
   div.innerHTML = `
@@ -1517,7 +1542,7 @@ function showTyping() {
   div.className = 'message assistant';
   div.id = 'typingIndicator';
   div.innerHTML = `
-    <div class="msg-av">🔥</div>
+    <div class="msg-av"><svg width="16" height="16" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="3" fill="#FF6B00"/><line x1="20" y1="4" x2="20" y2="13" stroke="#FF6B00" stroke-width="2.5" stroke-linecap="round"/><line x1="20" y1="27" x2="20" y2="36" stroke="#FF6B00" stroke-width="2.5" stroke-linecap="round"/><line x1="4" y1="20" x2="13" y2="20" stroke="#FF6B00" stroke-width="2.5" stroke-linecap="round"/><line x1="27" y1="20" x2="36" y2="20" stroke="#FF6B00" stroke-width="2.5" stroke-linecap="round"/><line x1="8.69" y1="8.69" x2="15.27" y2="15.27" stroke="#9B5DE5" stroke-width="2" stroke-linecap="round"/><line x1="24.73" y1="24.73" x2="31.31" y2="31.31" stroke="#9B5DE5" stroke-width="2" stroke-linecap="round"/><line x1="31.31" y1="8.69" x2="24.73" y2="15.27" stroke="#9B5DE5" stroke-width="2" stroke-linecap="round"/><line x1="15.27" y1="24.73" x2="8.69" y2="31.31" stroke="#9B5DE5" stroke-width="2" stroke-linecap="round"/></svg></div>
     <div class="msg-content">
       <div class="msg-sender">${escHtml(assistantName)}</div>
       <div class="typing-ind">
