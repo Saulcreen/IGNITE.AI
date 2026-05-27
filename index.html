@@ -893,8 +893,10 @@ body::after {
           <option value="anthropic|claude-3-opus-20240229">Claude 3 Opus</option>
         </optgroup>
         <optgroup label="⚡ Groq (Free)">
+          <option value="groq|meta-llama/llama-4-scout-17b-16e-instruct">Llama 4 Scout 👁 (visión)</option>
+          <option value="groq|meta-llama/llama-4-maverick-17b-128e-instruct">Llama 4 Maverick 👁 (visión)</option>
           <option value="groq|llama-3.1-8b-instant">Llama 3.1 8B ⚡</option>
-          <option value="groq|llama-3.1-70b-versatile">Llama 3.1 70B ★</option>
+          <option value="groq|llama-3.3-70b-versatile">Llama 3.3 70B ★</option>
           <option value="groq|mixtral-8x7b-32768">Mixtral 8x7B</option>
         </optgroup>
         <optgroup label="🟣 Mistral">
@@ -1138,6 +1140,8 @@ const MODEL_NAMES = {
   'claude-3-5-haiku-20241022': 'Claude 3.5 Haiku',
   'claude-3-5-sonnet-20241022': 'Claude 3.5 Sonnet',
   'claude-3-opus-20240229': 'Claude 3 Opus',
+  'meta-llama/llama-4-scout-17b-16e-instruct': 'Llama 4 Scout',
+  'meta-llama/llama-4-maverick-17b-128e-instruct': 'Llama 4 Maverick',
   'llama-3.1-8b-instant': 'Llama 3.1 8B',
   'llama-3.1-70b-versatile': 'Llama 3.1 70B',
   'mixtral-8x7b-32768': 'Mixtral 8x7B',
@@ -1766,9 +1770,35 @@ async function callGroq(messages, model, sys) {
   const key = apiKeys.groq;
   if (!key) throw new Error('Configura una API key de Groq en Ajustes');
 
+  // Modelos con soporte de visión
+  const visionModels = ['meta-llama/llama-4-scout-17b-16e-instruct', 'meta-llama/llama-4-maverick-17b-128e-instruct'];
+  const supportsVision = visionModels.includes(model);
+
   const msgs = [];
   if (sys) msgs.push({ role: 'system', content: sys });
-  messages.forEach(m => msgs.push({ role: m.role, content: m.content || '' }));
+
+  for (const m of messages) {
+    const hasImages = m.attachments && m.attachments.some(a => a.type === 'image' && a.dataUrl);
+    if (hasImages && supportsVision) {
+      // Construir content como array multimodal
+      const parts = [];
+      if (m.content && m.content.trim()) parts.push({ type: 'text', text: m.content });
+      for (const a of m.attachments) {
+        if (a.type === 'image' && a.dataUrl) {
+          parts.push({ type: 'image_url', image_url: { url: a.dataUrl } });
+        }
+      }
+      msgs.push({ role: m.role, content: parts });
+    } else if (hasImages && !supportsVision) {
+      // Modelo sin visión: avisar al usuario en el texto
+      const names = m.attachments.filter(a => a.type === 'image').map(a => a.name || 'imagen').join(', ');
+      const txt = (m.content || '') + `
+[Nota: adjuntaste ${names} pero el modelo actual no soporta visión. Cambia a Llama 4 Scout o Maverick para analizar imágenes]`;
+      msgs.push({ role: m.role, content: txt });
+    } else {
+      msgs.push({ role: m.role, content: m.content || '' });
+    }
+  }
 
   const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST', headers: { 'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json' },
