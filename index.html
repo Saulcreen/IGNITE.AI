@@ -564,6 +564,18 @@ body::after {
 .mention-suggest-item span.desc {
   color: var(--txt-d); font-size: .72rem;
 }
+
+/* @imagen command token highlight */
+.cmd-token {
+  color: #22c55e;
+  font-weight: 700;
+  font-family: var(--fm);
+  font-size: .85em;
+  background: rgba(34,197,94,.12);
+  border-radius: 4px;
+  padding: 1px 4px;
+  letter-spacing: .02em;
+}
 .img-picker-title { font-size: 11px; color: var(--txt-d); margin-bottom: 8px; font-family: var(--fm); }
 .img-picker-grid { display: flex; flex-wrap: wrap; gap: 6px; }
 .img-picker-item {
@@ -1538,8 +1550,12 @@ function appendMsgEl(msg, scroll = true) {
 
   // Text content
   if (msg.content) {
+    // Colorear tokens @imagen en mensajes del usuario
+    const highlightedContent = isUser
+      ? escHtml(msg.content).replace(/(@imagen\d*)/gi, '<span class="cmd-token">$1</span>').replace(/\n/g,'<br>')
+      : null;
     contentHtml += isUser
-      ? `<div class="msg-bubble">${escHtml(msg.content).replace(/\n/g,'<br>')}</div><button class="msg-edit-btn" onclick="startEditMsg(this)">✏ editar</button>`
+      ? `<div class="msg-bubble">${highlightedContent}</div><button class="msg-edit-btn" onclick="startEditMsg(this)">✏ editar</button>`
       : `<div class="msg-bubble">${renderMarkdown(msg.content)}</div>`;
   }
 
@@ -1606,8 +1622,9 @@ async function sendMsg() {
     return;
   }
 
-  // @imagen command
-  if (text.startsWith('@imagen') || text.startsWith('@image')) {
+  // @imagen command — solo generar si NO hay número (ej: @imagen ciudad futurista)
+  // @imagen1, @imagen2, etc. son REFERENCIAS a adjuntos, no generación
+  if ((text.startsWith('@imagen') || text.startsWith('@image')) && !/^@imagen\d/i.test(text)) {
     const prompt = text.replace(/^@imagen\s*/i,'').replace(/^@image\s*/i,'');
     await handleImageGen(prompt);
     input.value = '';
@@ -1618,10 +1635,30 @@ async function sendMsg() {
   let chat = getActiveChat();
   if (!chat) { newChat(); chat = getActiveChat(); }
 
+  // Resolver referencias @imagen1, @imagen2… — incluir la imagen correcta en el mensaje
+  let resolvedAttachments = [...pendingAttachments];
+  const imgRefs = [...text.matchAll(/@imagen(\d+)/gi)];
+  if (imgRefs.length > 0) {
+    const imgs = pendingAttachments.filter(a => a.type === 'image');
+    if (imgs.length === 0) {
+      toast('⚠ No hay imágenes adjuntas. Adjunta una imagen primero.');
+      return;
+    }
+    imgRefs.forEach(ref => {
+      const idx = parseInt(ref[1]) - 1;
+      if (imgs[idx] && !resolvedAttachments.find(a => a === imgs[idx])) {
+        resolvedAttachments.push(imgs[idx]);
+      }
+    });
+    // Si no había ninguna imagen en pendingAttachments pero hay ref, aseguramos que estén todas las mencionadas
+    // (ya cubiertas arriba). Limpiar el texto del @imagenN para no confundir a la IA
+    // NO limpiamos — la IA entiende "la imagen 1 adjunta"
+  }
+
   const userMsg = {
     role: 'user',
     content: text,
-    attachments: [...pendingAttachments],
+    attachments: resolvedAttachments,
     timestamp: Date.now()
   };
 
