@@ -540,6 +540,30 @@ body::after {
   padding: 10px; z-index: 100; display: none;
 }
 .img-picker-popup.active { display: block; }
+
+/* ── @ MENTION SUGGESTION ── */
+.mention-suggest {
+  position: absolute; bottom: 100%; left: 0; margin-bottom: 6px;
+  background: var(--surf2); border: 1px solid var(--bord); border-radius: 8px;
+  overflow: hidden; z-index: 101; display: none; min-width: 160px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.5);
+}
+.mention-suggest.active { display: block; }
+.mention-suggest-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 9px 14px; cursor: pointer;
+  font-family: var(--fm); font-size: .78rem;
+  color: var(--txt); transition: background .12s;
+}
+.mention-suggest-item:hover, .mention-suggest-item.selected {
+  background: rgba(255,107,0,.15);
+}
+.mention-suggest-item span.tag {
+  color: var(--red); font-weight: 600; letter-spacing: .03em;
+}
+.mention-suggest-item span.desc {
+  color: var(--txt-d); font-size: .72rem;
+}
 .img-picker-title { font-size: 11px; color: var(--txt-d); margin-bottom: 8px; font-family: var(--fm); }
 .img-picker-grid { display: flex; flex-wrap: wrap; gap: 6px; }
 .img-picker-item {
@@ -1038,6 +1062,12 @@ body::after {
       <div class="img-picker-popup" id="imgPickerPopup">
         <div class="img-picker-title">📎 Selecciona una imagen adjunta para referenciar:</div>
         <div class="img-picker-grid" id="imgPickerGrid"></div>
+      </div>
+      <div class="mention-suggest" id="mentionSuggest">
+        <div class="mention-suggest-item" id="mentionImagen" onclick="insertMentionImagen()">
+          <span class="tag">@imagen</span>
+          <span class="desc">referenciar imagen adjunta</span>
+        </div>
       </div>
       <div class="input-hint" id="inputHint">ENTER para enviar &nbsp;·&nbsp; SHIFT+ENTER para nueva línea &nbsp;·&nbsp; @imagen para referenciar imagen adjunta</div>
     </div>
@@ -2154,6 +2184,19 @@ function exportChat() {
 // INPUT HANDLING
 // ══════════════════════════════════════════
 document.getElementById('chatInput').addEventListener('keydown', e => {
+  const mentionPopup = document.getElementById('mentionSuggest');
+  // Si el suggest de @ está activo, Tab o Enter lo seleccionan
+  if (mentionPopup.classList.contains('active')) {
+    if (e.key === 'Tab' || (e.key === 'Enter' && !e.shiftKey)) {
+      e.preventDefault();
+      insertMentionImagen();
+      return;
+    }
+    if (e.key === 'Escape') {
+      mentionPopup.classList.remove('active');
+      return;
+    }
+  }
   if (e.key === 'Enter' && !e.shiftKey) {
     e.preventDefault();
     sendMsg();
@@ -2350,17 +2393,35 @@ function startEditMsg(btn) {
 // ── @imagen PICKER ──
 let imgPickerCallback = null;
 
+function insertMentionImagen() {
+  const input = document.getElementById('chatInput');
+  const val = input.value;
+  const cursor = input.selectionStart;
+  const before = val.slice(0, cursor);
+  // Reemplaza el @ suelto con @imagen
+  const newBefore = before.replace(/@\w*$/, '@imagen ');
+  input.value = newBefore + val.slice(cursor);
+  input.focus();
+  const newCursor = newBefore.length;
+  input.setSelectionRange(newCursor, newCursor);
+  document.getElementById('mentionSuggest').classList.remove('active');
+  // Ahora disparar el picker de imágenes directamente
+  checkImgPicker({ type: 'synthetic' });
+}
+
 function checkImgPicker(e) {
   const input = document.getElementById('chatInput');
   const val = input.value;
   const cursor = input.selectionStart;
-  // Detectar si acaba de escribir @imagen
   const before = val.slice(0, cursor);
-  const match = before.match(/@imagen\s*$/i);
-  const popup = document.getElementById('imgPickerPopup');
 
-  if (match && pendingAttachments.some(a => a.type === 'image')) {
-    // Mostrar picker con imágenes adjuntas
+  const mentionPopup = document.getElementById('mentionSuggest');
+  const imgPopup = document.getElementById('imgPickerPopup');
+
+  // 1) Si escribió @imagen completo → mostrar picker de imágenes
+  const imgMatch = before.match(/@imagen\s*$/i);
+  if (imgMatch && pendingAttachments.some(a => a.type === 'image')) {
+    mentionPopup.classList.remove('active');
     const grid = document.getElementById('imgPickerGrid');
     grid.innerHTML = '';
     const imgs = pendingAttachments.filter(a => a.type === 'image');
@@ -2372,26 +2433,38 @@ function checkImgPicker(e) {
         item.className = 'img-picker-item';
         item.innerHTML = `<img src="${img.dataUrl}"><span class="img-num">${i+1}</span>`;
         item.onclick = () => {
-          // Insertar referencia en el input
           const ref = `@imagen${i+1}`;
           const newVal = val.slice(0, cursor).replace(/@imagen\s*$/i, ref + ' ') + val.slice(cursor);
           input.value = newVal;
           input.focus();
-          popup.classList.remove('active');
+          imgPopup.classList.remove('active');
         };
         grid.appendChild(item);
       });
     }
-    popup.classList.add('active');
+    imgPopup.classList.add('active');
+    return;
   } else {
-    popup.classList.remove('active');
+    imgPopup.classList.remove('active');
+  }
+
+  // 2) Si escribió solo @ (sin completar) → mostrar sugerencia @imagen
+  const atMatch = before.match(/@(\w*)$/);
+  if (atMatch && 'imagen'.startsWith(atMatch[1].toLowerCase()) && atMatch[1].toLowerCase() !== 'imagen') {
+    mentionPopup.classList.add('active');
+  } else {
+    mentionPopup.classList.remove('active');
   }
 }
 
 // Cerrar picker al hacer click fuera
 document.addEventListener('click', e => {
-  const popup = document.getElementById('imgPickerPopup');
-  if (!e.target.closest('.input-area')) popup.classList.remove('active');
+  const imgPopup = document.getElementById('imgPickerPopup');
+  const mentionPopup = document.getElementById('mentionSuggest');
+  if (!e.target.closest('.input-area')) {
+    imgPopup.classList.remove('active');
+    mentionPopup.classList.remove('active');
+  }
 });
 
 
